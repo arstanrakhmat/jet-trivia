@@ -1,0 +1,64 @@
+# ===============================
+# 📦 Workflow: Run unit tests on Pull Requests
+# This workflow runs automatically every time someone opens
+# or updates a Pull Request targeting the main branch.
+# It ensures that all unit tests pass before merging.
+# ===============================
+
+name: Run test
+
+on:
+  # Trigger this workflow only when a Pull Request
+  # is opened, synchronized (updated), or reopened
+  # targeting the `main` branch.
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Each workflow can have multiple jobs.
+  # Here we define only one job called "build".
+  build:
+    # GitHub-hosted Linux virtual machine (runner)
+    # where all commands below will execute.
+    runs-on: ubuntu-latest
+
+    steps:
+      # ===============================
+      # Step 1: Checkout code
+      # ===============================
+      # This action clones your repository code into the
+      # workflow runner, so subsequent steps can access it.
+      - uses: actions/checkout@v4
+
+      # ===============================
+      # Step 2: Set up Java environment
+      # ===============================
+      # Android builds require Java. Here we install
+      # JDK 17 (used by Android Gradle Plugin 8+)
+      # using Temurin distribution (recommended).
+      # The 'cache: gradle' option automatically caches
+      # Gradle dependencies between builds for speed.
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: 'gradle'
+
+      # ===============================
+      # Step 3: Allow gradlew execution
+      # ===============================
+      # The Gradle wrapper (`gradlew`) might not have
+      # execute permissions by default on Linux.
+      # This command makes it executable.
+      - name: Grant execute permissions for gradlew
+        run: chmod +x gradlew
+
+      # ===============================
+      # Step 4: Run unit tests
+      # ===============================
+      # Runs your Gradle wrapper to clean previous builds
+      # and execute all unit tests in the Debug build variant.
+      # If any test fails, the workflow will fail.
+      - name: Run unit tests
+        run: ./gradlew clean testDebug
