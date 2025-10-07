@@ -18,8 +18,8 @@ jobs:
           java-version: 17
           cache: 'gradle'
 
-      - name: Grand execute permissions for gradlew
+      - name: Grant execute permissions for gradlew
         run: chmod +x gradlew
 
       - name: Run unit tests
-        run: ./gradle clean testDebug
+        run: ./gradlew clean testDebug
